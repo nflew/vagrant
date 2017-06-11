@@ -1,0 +1,45 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#Loads property file
+require 'yaml'
+project_settings = YAML.load_file('Vagrantsettings.yaml')
+
+Vagrant.require_plugin "vagrant-reload"
+Vagrant.configure("2") do |config|
+
+    #Set basebox
+    config.vm.box = project_settings['box']['name']
+
+    #Set hostname
+    config.vm.hostname =  project_settings['vm']['hostname']
+
+    #Set timezone
+    timezone = project_settings['vm']['timezone']
+        if Vagrant.has_plugin?("vagrant-timezone")
+        config.timezone.value = timezone
+    end
+
+    #Memory and CPU settings
+    memory = project_settings['vm']['memory']
+    cpus = project_settings['vm']['cpu']
+
+
+    #Synced Folders
+    config.vm.synced_folder "~/projects/", "/projects", create: true
+    config.vm.synced_folder "~/vagrant_share", "/share", create: true
+
+    #Virtualbox settings
+    config.vm.provider "virtualbox" do |vb|
+        vb.gui = false
+        vb.name = project_settings['vm']['name'] + '_' + Time.now.strftime("%Y-%m-%d-%H%M%S%L")
+        vb.customize ["modifyvm", :id, "--memory", project_settings['vm']['memory']]
+        vb.customize ["modifyvm", :id, "--cpus", project_settings['vm']['cpus']]
+        vb.customize [ "guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000 ]
+        vb.customize [ "guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-interval", 10000 ]
+        vb.customize [ "guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-min-adjust", 100 ]
+    end
+
+    #Run workers to provison box.
+    config.vm.provision "shell", path: "workers/install_packages.sh"
+    config.vm.provision :reload
+end

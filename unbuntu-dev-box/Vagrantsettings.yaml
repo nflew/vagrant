@@ -1,0 +1,17 @@
+####################
+# General settings.
+
+####################
+# Machine specs
+vm:
+  cpus: 2
+  memory: 4096
+  name: nesting-doll
+  hostname: nesting-doll
+  timezone: 'EST'
+
+####################
+# Default vagrant box.
+box:
+  name: ubuntu/trusty64
+  url: 'https://lewinski.org/vagrant/boxes/nesting-doll-0.0.1'
