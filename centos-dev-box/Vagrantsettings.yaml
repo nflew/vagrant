@@ -1,0 +1,15 @@
+# General settings.
+
+
+# Machine specs
+vm:
+  cpus: 2
+  memory: 4096
+  name: nesting-doll
+  hostname: nesting-doll
+  timezone: 'EST'
+
+
+# Default vagrant box.
+box:
+  name: centos/7
